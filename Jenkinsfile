@@ -51,7 +51,7 @@ pipeline {
             steps {
                 script {
                     echo 'Building Docker image...'
-                    sh 'docker build -t BenHajDahmenAhmed/tp-projet-2025:latest .'
+                    sh 'docker build -t benhajdahmenahmed/tp-projet-2025:latest .'
                 }
             }
         }
