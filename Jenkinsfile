@@ -67,6 +67,23 @@ pipeline {
                 }
             }
         }
+        stage('Kubernetes Deploy') {
+            steps {
+                script {
+                    echo 'Deploying to Kubernetes...'
+                    // Apply the namespace first if it doesn't exist (optional but safer)
+                    sh 'kubectl apply -f k8s/mysql-k8s.yaml'
+                    sh 'kubectl apply -f k8s/spring-app-k8s.yaml'
+
+                    echo 'Waiting for deployments to be ready...'
+                    sh 'kubectl rollout status deployment/mysql -n devops --timeout=3m'
+                    sh 'kubectl rollout status deployment/spring-app -n devops --timeout=3m'
+
+                    echo 'Verifying status...'
+                    sh 'kubectl get pods -n devops'
+                }
+            }
+        }
     }
 
     post {
