@@ -51,7 +51,6 @@ pipeline {
             steps {
                 script {
                     echo 'Building Docker image...'
-                    // Replace 'azizbf' with your Docker Hub username
                     sh 'docker build -t BenHajDahmenAhmed/tp-projet-2025:latest .'
                 }
             }
