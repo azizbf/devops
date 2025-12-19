@@ -2,14 +2,12 @@ pipeline {
     agent any
 
     tools {
-        // Ensure Maven is configured in Jenkins Global Tool Configuration with this name
         maven 'maven-3'
     }
 
     stages {
         stage('Récupération du code source') {
             steps {
-                // This step retrieves the code from the Git repository configured in the Job
                 checkout scm
             }
         }
@@ -31,8 +29,6 @@ pipeline {
         stage('Analyse SonarQube') {
             steps {
                 echo 'Running SonarQube analysis...'
-                // 'sonar-server' must be configured in Jenkins (Manage Jenkins > System > SonarQube servers)
-                // SonarQube token should be handled via credentials or within withSonarQubeEnv
                 withSonarQubeEnv('sq1') {
                     sh 'mvn sonar:sonar'
                 }
@@ -42,7 +38,6 @@ pipeline {
         stage('Génération du fichier JAR') {
             steps {
                 echo 'Packaging the application...'
-                // Skip tests for faster packaging
                 sh 'mvn package -DskipTests'
             }
         }
@@ -59,20 +54,33 @@ pipeline {
         stage('Pushing to Docker Hub') {
             steps {
                 script {
-                    // 'docker-hub-creds' must be configured in Jenkins as "Username with password"
                     withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
-                        sh "echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin"
-                        sh "docker push $DOCKER_HUB_USERNAME/tp-projet-2025:latest"
+                        sh "echo \$DOCKER_HUB_PASSWORD | docker login -u \$DOCKER_HUB_USERNAME --password-stdin"
+                        sh "docker push benhajdahmenahmed/tp-projet-2025:latest"
                     }
                 }
             }
         }
+
+        stage('Load Images to Minikube') {
+            steps {
+                script {
+                    echo 'Loading images into Minikube...'
+                    // Load MySQL image (pull first if not present)
+                    sh 'docker pull mysql:8.0 || true'
+                    sh 'minikube image load mysql:8.0'
+                    // Load Spring Boot image
+                    sh 'minikube image load benhajdahmenahmed/tp-projet-2025:latest'
+                }
+            }
+        }
+
         stage('Kubernetes Deploy') {
             steps {
                 script {
                     echo 'Deploying to Kubernetes...'
 
-                    // Create namespace if it doesn't exist (this will not fail if it already exists)
+                    // Create namespace if it doesn't exist
                     sh 'kubectl create namespace devops --dry-run=client -o yaml | kubectl apply -f -'
 
                     // Apply Kubernetes manifests
@@ -80,10 +88,10 @@ pipeline {
                     sh 'kubectl apply -f k8s/spring-app-k8s.yaml'
 
                     echo 'Waiting for deployments to be ready...'
-                    sh 'kubectl rollout status deployment/mysql -n devops --timeout=5m'
-                    sh 'kubectl rollout status deployment/spring-app -n devops --timeout=5m'
+                    sh 'kubectl rollout status deployment/mysql -n devops --timeout=10m'
+                    sh 'kubectl rollout status deployment/spring-app -n devops --timeout=10m'
 
-                    echo 'Verifying status...'
+                    echo 'Deployment successful! Verifying status...'
                     sh 'kubectl get pods -n devops'
                     sh 'kubectl get svc -n devops'
                 }
@@ -94,7 +102,6 @@ pipeline {
     post {
         success {
             echo 'Pipeline completed successfully!'
-            // Archive the generated JAR artifact
             archiveArtifacts artifacts: 'target/*.jar', allowEmptyArchive: true
         }
         failure {
