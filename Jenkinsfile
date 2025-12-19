@@ -33,7 +33,7 @@ pipeline {
                 echo 'Running SonarQube analysis...'
                 // 'sonar-server' must be configured in Jenkins (Manage Jenkins > System > SonarQube servers)
                 // SonarQube token should be handled via credentials or within withSonarQubeEnv
-                withSonarQubeEnv('sonar-server') {
+                withSonarQubeEnv('sq1') {
                     sh 'mvn sonar:sonar'
                 }
             }
