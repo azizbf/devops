@@ -60,7 +60,7 @@ pipeline {
             steps {
                 script {
                     // 'docker-hub-creds' must be configured in Jenkins as "Username with password"
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
                         sh "echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin"
                         sh "docker push $DOCKER_HUB_USERNAME/tp-projet-2025:latest"
                     }
