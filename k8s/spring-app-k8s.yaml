@@ -16,7 +16,7 @@ metadata:
   namespace: devops
 type: Opaque
 stringData:
-  SPRING_DATASOURCE_PASSWORD: "rootpassword"
+  SPRING_DATASOURCE_PASSWORD: "root123"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -66,22 +66,19 @@ spec:
                   name: spring-config
                   key: SPRING_JPA_SHOW_SQL
           startupProbe:
-            httpGet:
-              path: /actuator/health
+            tcpSocket:
               port: 8080
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 30
           readinessProbe:
-            httpGet:
-              path: /actuator/health
+            tcpSocket:
               port: 8080
             initialDelaySeconds: 10
             periodSeconds: 5
             failureThreshold: 3
           livenessProbe:
-            httpGet:
-              path: /actuator/health
+            tcpSocket:
               port: 8080
             initialDelaySeconds: 90
             periodSeconds: 10
