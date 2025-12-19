@@ -71,16 +71,21 @@ pipeline {
             steps {
                 script {
                     echo 'Deploying to Kubernetes...'
-                    // Apply the namespace first if it doesn't exist (optional but safer)
+
+                    // Create namespace if it doesn't exist (this will not fail if it already exists)
+                    sh 'kubectl create namespace devops --dry-run=client -o yaml | kubectl apply -f -'
+
+                    // Apply Kubernetes manifests
                     sh 'kubectl apply -f k8s/mysql-k8s.yaml'
                     sh 'kubectl apply -f k8s/spring-app-k8s.yaml'
 
                     echo 'Waiting for deployments to be ready...'
-                    sh 'kubectl rollout status deployment/mysql -n devops --timeout=3m'
-                    sh 'kubectl rollout status deployment/spring-app -n devops --timeout=3m'
+                    sh 'kubectl rollout status deployment/mysql -n devops --timeout=5m'
+                    sh 'kubectl rollout status deployment/spring-app -n devops --timeout=5m'
 
                     echo 'Verifying status...'
                     sh 'kubectl get pods -n devops'
+                    sh 'kubectl get svc -n devops'
                 }
             }
         }
