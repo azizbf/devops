@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
         - name: spring-app
-          image: azizbf/tp-projet-2025:latest
+          image: benhajdahmenahmed/tp-projet-2025:latest
           ports:
             - containerPort: 8080
           envFrom:
