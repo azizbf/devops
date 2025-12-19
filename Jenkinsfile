@@ -1,47 +1,83 @@
 pipeline {
     agent any
 
-    stages {
+    tools {
+        // Ensure Maven is configured in Jenkins Global Tool Configuration with this name
+        maven 'maven-3'
+    }
 
-        stage('Checkout SCM') {
+    stages {
+        stage('Récupération du code source') {
             steps {
+                // This step retrieves the code from the Git repository configured in the Job
                 checkout scm
             }
         }
 
-        stage('Clean') {
+        stage('Nettoyage du projet') {
             steps {
-                sh 'bash mvnw clean'
+                echo 'Cleaning the project...'
+                sh 'mvn clean'
             }
         }
 
-        stage('Compile') {
+        stage('Compilation du projet') {
             steps {
-                sh 'bash mvnw compile'
+                echo 'Compiling the project...'
+                sh 'mvn compile'
             }
         }
 
-        stage('SonarQube Scan') {
+        stage('Analyse SonarQube') {
             steps {
-                withSonarQubeEnv('sq1') {
-                    sh 'bash mvnw sonar:sonar'
+                echo 'Running SonarQube analysis...'
+                // 'sonar-server' must be configured in Jenkins (Manage Jenkins > System > SonarQube servers)
+                // SonarQube token should be handled via credentials or within withSonarQubeEnv
+                withSonarQubeEnv('sonar-server') {
+                    sh 'mvn sonar:sonar'
                 }
             }
         }
 
-        stage('Package JAR') {
+        stage('Génération du fichier JAR') {
             steps {
-                sh 'bash mvnw package'
+                echo 'Packaging the application...'
+                // Skip tests for faster packaging
+                sh 'mvn package -DskipTests'
+            }
+        }
+
+        stage('Building Docker Image') {
+            steps {
+                script {
+                    echo 'Building Docker image...'
+                    // Replace 'azizbf' with your Docker Hub username
+                    sh 'docker build -t BenHajDahmenAhmed/tp-projet-2025:latest .'
+                }
+            }
+        }
+
+        stage('Pushing to Docker Hub') {
+            steps {
+                script {
+                    // 'docker-hub-creds' must be configured in Jenkins as "Username with password"
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
+                        sh "echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin"
+                        sh "docker push $DOCKER_HUB_USERNAME/tp-projet-2025:latest"
+                    }
+                }
             }
         }
     }
 
     post {
         success {
-            echo 'Pipeline terminé avec succès ! ✅'
+            echo 'Pipeline completed successfully!'
+            // Archive the generated JAR artifact
+            archiveArtifacts artifacts: 'target/*.jar', allowEmptyArchive: true
         }
         failure {
-            echo 'Pipeline échoué ❌'
+            echo 'Pipeline failed!'
         }
     }
 }
