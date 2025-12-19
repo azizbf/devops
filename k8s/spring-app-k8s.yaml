@@ -5,7 +5,7 @@ metadata:
   namespace: devops
 data:
   SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-service:3306/springdb"
-  SPRING_DATASOURCE_USERNAME: "spring"
+  SPRING_DATASOURCE_USERNAME: "root"
   SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
   SPRING_JPA_SHOW_SQL: "true"
 ---
@@ -16,7 +16,7 @@ metadata:
   namespace: devops
 type: Opaque
 stringData:
-  SPRING_DATASOURCE_PASSWORD: "spring123"
+  SPRING_DATASOURCE_PASSWORD: "rootpassword"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -36,28 +36,25 @@ spec:
       containers:
         - name: spring-app
           image: benhajdahmenahmed/tp-projet-2025:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
           env:
-            # Database URL
             - name: SPRING_DATASOURCE_URL
               valueFrom:
                 configMapKeyRef:
                   name: spring-config
                   key: SPRING_DATASOURCE_URL
-            # Database Username
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 configMapKeyRef:
                   name: spring-config
                   key: SPRING_DATASOURCE_USERNAME
-            # Database Password
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: spring-secret
                   key: SPRING_DATASOURCE_PASSWORD
-            # Hibernate settings
             - name: SPRING_JPA_HIBERNATE_DDL_AUTO
               valueFrom:
                 configMapKeyRef:
@@ -68,18 +65,27 @@ spec:
                 configMapKeyRef:
                   name: spring-config
                   key: SPRING_JPA_SHOW_SQL
-          livenessProbe:
-            httpGet:
-              path: /actuator/health
-              port: 8080
-            initialDelaySeconds: 60
-            periodSeconds: 10
-          readinessProbe:
+          startupProbe:
             httpGet:
               path: /actuator/health
               port: 8080
             initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 10
             periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            failureThreshold: 3
 ---
 apiVersion: v1
 kind: Service
