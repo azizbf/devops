@@ -7,7 +7,7 @@ WORKDIR /app
 # Copy your built JAR into the container
 COPY target/TP-Projet-2025-0.0.1-SNAPSHOT.jar app.jar
 
-# Expose the port your app runs on (Spring Boot default 8080)
+# Expose the port yo    gur app runs on (Spring Boot default 8080)
 EXPOSE 8080
 
 # Run the app

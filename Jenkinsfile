@@ -56,24 +56,15 @@ pipeline {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
                         sh "echo \$DOCKER_HUB_PASSWORD | docker login -u \$DOCKER_HUB_USERNAME --password-stdin"
-                        sh "docker push benhajdahmenahmed/tp-projet-2025:latest"
+                        retry(3) {
+                            sh "docker push benhajdahmenahmed/tp-projet-2025:latest"
+                        }
                     }
                 }
             }
         }
 
-        stage('Load Images to Minikube') {
-            steps {
-                script {
-                    echo 'Loading images into Minikube...'
-                    // Load MySQL image (pull first if not present)
-                    sh 'docker pull mysql:8.0 || true'
-                    sh 'minikube image load mysql:8.0'
-                    // Load Spring Boot image
-                    sh 'minikube image load benhajdahmenahmed/tp-projet-2025:latest'
-                }
-            }
-        }
+
 
         stage('Kubernetes Deploy') {
             steps {
