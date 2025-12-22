@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        maven 'maven-3'
+            maven 'Maven-3.6.3'
     }
 
     stages {
@@ -97,6 +97,10 @@ pipeline {
         }
         failure {
             echo 'Pipeline failed!'
+        }
+        always {
+            echo 'Cleaning up Docker images...'
+            sh "docker rmi ${DOCKER_IMAGE}:${BUILD_NUMBER} || true"
         }
     }
 }
