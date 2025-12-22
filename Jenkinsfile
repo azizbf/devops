@@ -29,7 +29,7 @@ pipeline {
         stage('Analyse SonarQube') {
             steps {
                 echo 'Running SonarQube analysis...'
-                withSonarQubeEnv('SonarQubeScanner') {
+                withSonarQubeEnv('sonarqube') {
                     sh 'mvn sonar:sonar'
                 }
             }
