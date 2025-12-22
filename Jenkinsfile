@@ -98,9 +98,5 @@ pipeline {
         failure {
             echo 'Pipeline failed!'
         }
-        always {
-            echo 'Cleaning up Docker images...'
-            sh "docker rmi ${DOCKER_IMAGE}:${BUILD_NUMBER} || true"
-        }
     }
 }
