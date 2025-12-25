@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping("/Entreprise")
 @Tag(name = "Gestion Entreprises")
-public class EntrepriseRestController {
+public class  EntrepriseRestController {
 
     @Autowired
     private IEntrepriseServices entrepriseService;
