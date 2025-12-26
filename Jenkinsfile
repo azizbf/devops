@@ -121,6 +121,7 @@ pipeline {
                             <p>Check the <a href="${env.BUILD_URL}console">console output</a> for details.</p>
                         """,
                         to: recipient,
+                        from: 'Jenkins@pipeline.com',
                         mimeType: 'text/html'
                     )
                 }
@@ -146,6 +147,7 @@ pipeline {
                             <p style="color: red;"><strong>Action Required:</strong> Please investigate and fix the issues.</p>
                         """,
                         to: recipient,
+                        from: 'Jenkins@pipeline.com',
                         mimeType: 'text/html'
                     )
                 }
