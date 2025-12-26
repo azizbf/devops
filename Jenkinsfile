@@ -9,7 +9,7 @@ pipeline {
         DOCKER_IMAGE = 'benhajdahmenahmed/tp-projet-2025'
         DOCKER_TAG = 'latest'
         K8S_NAMESPACE = 'devops'
-        EMAIL_RECIPIENTS = 'mrbhda@gmail.com, ahmed.benhajdahmen@outlook.com, mrbda0@gmail.com'
+        EMAIL_RECIPIENTS = 'mrbhda@gmail.com, ahmed.benhajdahmen@esprit.tn, mrbda0@gmail.com'
     }
 
     stages {
