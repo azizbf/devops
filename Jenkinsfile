@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-        DOCKER_IMAGE = 'benfedhilamedaziz/tp-projet-2025'
+        DOCKER_IMAGE = 'azizbf/tp-projet-2025'
         DOCKER_TAG = 'latest'
         K8S_NAMESPACE = 'devops'
         EMAIL_RECIPIENTS = 'mohamedaziz.benfedhila@esprit.tn'
