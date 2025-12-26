@@ -101,47 +101,55 @@ pipeline {
     post {
         success {
             echo '✅ Pipeline completed successfully!'
-            emailext(
-                subject: "✅ Jenkins Build SUCCESS: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
-                body: """
-                    <h2 style="color: green;">Build Successful! 🎉</h2>
-                    <p><strong>Job:</strong> ${env.JOB_NAME}</p>
-                    <p><strong>Build Number:</strong> ${env.BUILD_NUMBER}</p>
-                    <p><strong>Build URL:</strong> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
-                    <p><strong>Duration:</strong> ${currentBuild.durationString}</p>
-                    <hr>
-                    <h3>Deployed Components:</h3>
-                    <ul>
-                        <li>Docker Image: ${DOCKER_IMAGE}:${DOCKER_TAG}</li>
-                        <li>Kubernetes Namespace: ${K8S_NAMESPACE}</li>
-                    </ul>
-                    <p>Check the <a href="${env.BUILD_URL}console">console output</a> for details.</p>
-                """,
-                to: '',
-                bcc: "${env.EMAIL_RECIPIENTS}",
-                mimeType: 'text/html'
-            )
+            script {
+                def recipients = env.EMAIL_RECIPIENTS.split(',').collect { it.trim() }
+                recipients.each { recipient ->
+                    emailext(
+                        subject: "✅ Jenkins Build SUCCESS: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
+                        body: """
+                            <h2 style="color: green;">Build Successful! 🎉</h2>
+                            <p><strong>Job:</strong> ${env.JOB_NAME}</p>
+                            <p><strong>Build Number:</strong> ${env.BUILD_NUMBER}</p>
+                            <p><strong>Build URL:</strong> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                            <p><strong>Duration:</strong> ${currentBuild.durationString}</p>
+                            <hr>
+                            <h3>Deployed Components:</h3>
+                            <ul>
+                                <li>Docker Image: ${DOCKER_IMAGE}:${DOCKER_TAG}</li>
+                                <li>Kubernetes Namespace: ${K8S_NAMESPACE}</li>
+                            </ul>
+                            <p>Check the <a href="${env.BUILD_URL}console">console output</a> for details.</p>
+                        """,
+                        to: recipient,
+                        mimeType: 'text/html'
+                    )
+                }
+            }
         }
 
         failure {
             echo '❌ Pipeline failed!'
-            emailext(
-                subject: "❌ Jenkins Build FAILED: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
-                body: """
-                    <h2 style="color: red;">Build Failed! ⚠️</h2>
-                    <p><strong>Job:</strong> ${env.JOB_NAME}</p>
-                    <p><strong>Build Number:</strong> ${env.BUILD_NUMBER}</p>
-                    <p><strong>Build URL:</strong> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
-                    <p><strong>Duration:</strong> ${currentBuild.durationString}</p>
-                    <hr>
-                    <h3>Failed Stage:</h3>
-                    <p>Check the <a href="${env.BUILD_URL}console">console output</a> for error details.</p>
-                    <p style="color: red;"><strong>Action Required:</strong> Please investigate and fix the issues.</p>
-                """,
-                to: '',
-                bcc: "${env.EMAIL_RECIPIENTS}",
-                mimeType: 'text/html'
-            )
+            script {
+                def recipients = env.EMAIL_RECIPIENTS.split(',').collect { it.trim() }
+                recipients.each { recipient ->
+                    emailext(
+                        subject: "❌ Jenkins Build FAILED: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
+                        body: """
+                            <h2 style="color: red;">Build Failed! ⚠️</h2>
+                            <p><strong>Job:</strong> ${env.JOB_NAME}</p>
+                            <p><strong>Build Number:</strong> ${env.BUILD_NUMBER}</p>
+                            <p><strong>Build URL:</strong> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                            <p><strong>Duration:</strong> ${currentBuild.durationString}</p>
+                            <hr>
+                            <h3>Failed Stage:</h3>
+                            <p>Check the <a href="${env.BUILD_URL}console">console output</a> for error details.</p>
+                            <p style="color: red;"><strong>Action Required:</strong> Please investigate and fix the issues.</p>
+                        """,
+                        to: recipient,
+                        mimeType: 'text/html'
+                    )
+                }
+            }
         }
 
         always {
