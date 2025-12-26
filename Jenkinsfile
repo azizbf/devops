@@ -6,10 +6,10 @@ pipeline {
     }
 
     environment {
-        DOCKER_IMAGE = 'benhajdahmenahmed/tp-projet-2025'
+        DOCKER_IMAGE = 'BenFedhilaMedAziz/tp-projet-2025'
         DOCKER_TAG = 'latest'
         K8S_NAMESPACE = 'devops'
-        EMAIL_RECIPIENTS = 'mrbhda@gmail.com, ahmed.benhajdahmen@esprit.tn, mrbhda0@gmail.com'
+        EMAIL_RECIPIENTS = 'mohamedaziz.benfedhila@esprit.tn'
     }
 
     stages {
@@ -53,7 +53,7 @@ pipeline {
 
                     // Push to Docker Hub
                     withCredentials([usernamePassword(
-                        credentialsId: 'dockerhub-credentials',
+                        credentialsId: 'dockerhub',
                         passwordVariable: 'DOCKER_PASSWORD',
                         usernameVariable: 'DOCKER_USERNAME'
                     )]) {
