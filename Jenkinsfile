@@ -9,6 +9,7 @@ pipeline {
         DOCKER_IMAGE = 'benhajdahmenahmed/tp-projet-2025'
         DOCKER_TAG = 'latest'
         K8S_NAMESPACE = 'devops'
+        EMAIL_RECIPIENTS = 'mrbhda@gmail.com, ahmed.benhajdahmen@outlook.com, mrbda0@gmail.com'
     }
 
     stages {
@@ -116,7 +117,8 @@ pipeline {
                     </ul>
                     <p>Check the <a href="${env.BUILD_URL}console">console output</a> for details.</p>
                 """,
-                to: '${DEFAULT_RECIPIENTS}',
+                to: '',
+                bcc: "${env.EMAIL_RECIPIENTS}",
                 mimeType: 'text/html'
             )
         }
@@ -136,7 +138,8 @@ pipeline {
                     <p>Check the <a href="${env.BUILD_URL}console">console output</a> for error details.</p>
                     <p style="color: red;"><strong>Action Required:</strong> Please investigate and fix the issues.</p>
                 """,
-                to: '${DEFAULT_RECIPIENTS}',
+                to: '',
+                bcc: "${env.EMAIL_RECIPIENTS}",
                 mimeType: 'text/html'
             )
         }
